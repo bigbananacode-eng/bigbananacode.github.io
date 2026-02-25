@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mono Monkey POS - Cartel Facebook</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Nunito', sans-serif;
+    padding: 20px;
+  }
+
+  .poster {
+    width: 1080px;
+    height: 1080px;
+    background: linear-gradient(145deg, #0d0d1a 0%, #1a1a3e 40%, #0d2040 100%);
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 50px 60px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+  }
+
+  /* Background decorative circles */
+  .poster::before {
+    content: '';
+    position: absolute;
+    width: 700px; height: 700px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,210,0,0.06);
+    top: -200px; right: -200px;
+  }
+  .poster::after {
+    content: '';
+    position: absolute;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,180,255,0.07);
+    bottom: -150px; left: -150px;
+  }
+
+  /* Glow blobs */
+  .blob-yellow {
+    position: absolute;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,200,0,0.12) 0%, transparent 70%);
+    top: -80px; left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+  .blob-blue {
+    position: absolute;
+    width: 350px; height: 350px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,150,255,0.10) 0%, transparent 70%);
+    bottom: 80px; right: -100px;
+    pointer-events: none;
+  }
+
+  /* TOP: Brand */
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    z-index: 2;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .brand-pill {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 100px;
+    padding: 8px 22px 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, #FFD200, #FF8C00);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  .brand-text {
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .brand-text span {
+    color: #FFD200;
+  }
+
+  /* CENTER: Main content */
+  .center-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    z-index: 2;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .emoji-mascot {
+    font-size: 110px;
+    line-height: 1;
+    margin-bottom: 16px;
+    animation: bounce 2.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 30px rgba(255,210,0,0.4));
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  .tagline-top {
+    font-size: 15px;
+    font-weight: 700;
+    color: #FFD200;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    opacity: 0.9;
+  }
+
+  .product-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 108px;
+    line-height: 0.9;
+    text-align: center;
+    background: linear-gradient(180deg, #ffffff 0%, #c8d8f0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.02em;
+    margin-bottom: 6px;
+  }
+
+  .product-sub {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: #FFD200;
+    letter-spacing: 0.18em;
+    margin-bottom: 32px;
+  }
+
+  .description {
+    font-size: 18px;
+    color: rgba(255,255,255,0.70);
+    text-align: center;
+    max-width: 680px;
+    line-height: 1.5;
+    font-weight: 600;
+    margin-bottom: 40px;
+  }
+
+  /* Features grid */
+  .features {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 44px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .feature-chip {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 100px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.85);
+    transition: all 0.3s;
+  }
+
+  .feature-chip:hover {
+    border-color: rgba(255,210,0,0.4);
+    background: rgba(255,210,0,0.08);
+    color: #FFD200;
+  }
+
+  .feature-chip .ic {
+    font-size: 18px;
+  }
+
+  /* Price block */
+  .price-block {
+    background: linear-gradient(135deg, rgba(255,210,0,0.15) 0%, rgba(255,140,0,0.10) 100%);
+    border: 1.5px solid rgba(255,210,0,0.35);
+    border-radius: 24px;
+    padding: 28px 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .price-block::before {
+    content: '🚀 PRECIO DE LANZAMIENTO';
+    position: absolute;
+    top: -1px; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(90deg, #FFD200, #FF8C00);
+    color: #000;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    padding: 4px 20px;
+    border-radius: 0 0 12px 12px;
+  }
+
+  .price-label {
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 14px;
+    margin-bottom: 2px;
+  }
+
+  .price-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 96px;
+    line-height: 1;
+    background: linear-gradient(135deg, #FFD200 0%, #FF8C00 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .price-period {
+    font-size: 16px;
+    color: rgba(255,255,255,0.55);
+    font-weight: 700;
+    margin-top: 2px;
+  }
+
+  /* Includes row */
+  .includes {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .include-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+    font-weight: 700;
+  }
+
+  .include-item .check {
+    color: #FFD200;
+    font-size: 15px;
+  }
+
+  /* BOTTOM: CTA */
+  .bottom-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    z-index: 2;
+    gap: 20px;
+  }
+
+  .cta-btn {
+    background: linear-gradient(135deg, #FFD200 0%, #FF8C00 100%);
+    color: #0d0d1a;
+    font-size: 18px;
+    font-weight: 900;
+    padding: 18px 50px;
+    border-radius: 100px;
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    box-shadow: 0 8px 30px rgba(255,180,0,0.35);
+    display: inline-block;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .cta-btn:hover {
+    transform: scale(1.03);
+    box-shadow: 0 12px 40px rgba(255,180,0,0.50);
+  }
+
+  .contact-info {
+    text-align: right;
+    font-size: 14px;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.8;
+    font-weight: 600;
+  }
+
+  .contact-info strong {
+    color: rgba(255,255,255,0.80);
+    font-size: 15px;
+  }
+
+  /* Decorative horizontal line */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,210,0,0.3), transparent);
+    margin: 0;
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Grid lines background */
+  .grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div class="poster">
+  <div class="grid-bg"></div>
+  <div class="blob-yellow"></div>
+  <div class="blob-blue"></div>
+
+  <!-- TOP -->
+  <div class="brand-row">
+    <div class="brand-pill">
+      <div class="brand-icon">🍌</div>
+      <div class="brand-text">Big Banana <span>&lt;Code/&gt;</span> · Software Solutions</div>
+    </div>
+  </div>
+
+  <!-- CENTER -->
+  <div class="center-block">
+    <div class="emoji-mascot">🐒</div>
+    <div class="tagline-top">Sistema POS para Farmacia</div>
+    <div class="product-name">MONO MONKEY</div>
+    <div class="product-sub">Punto de Venta · v2.0</div>
+    <div class="description">
+      El software más ágil y completo para gestionar tu farmacia.<br>
+      Ventas, inventario, reportes y más, todo en un solo lugar.
+    </div>
+
+    <div class="features">
+      <div class="feature-chip"><span class="ic">💊</span> Inventario con lotes</div>
+      <div class="feature-chip"><span class="ic">🎫</span> Tickets imprimibles</div>
+      <div class="feature-chip"><span class="ic">📊</span> Reportes de ventas</div>
+      <div class="feature-chip"><span class="ic">👥</span> Múltiples usuarios</div>
+      <div class="feature-chip"><span class="ic">💳</span> Varios métodos de pago</div>
+      <div class="feature-chip"><span class="ic">📦</span> Control de stock</div>
+    </div>
+
+    <div class="price-block">
+      <div class="price-label">Solo por</div>
+      <div class="price-value">$499</div>
+      <div class="price-period">por año · licencia completa</div>
+      <div class="includes">
+        <div class="include-item"><span class="check">✓</span> Instalación incluida</div>
+        <div class="include-item"><span class="check">✓</span> Manual de usuario</div>
+        <div class="include-item"><span class="check">✓</span> Soporte técnico</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- BOTTOM -->
+  <div class="bottom-row">
+    <a class="cta-btn" href="#">¡Contáctanos ahora!</a>
+    <div class="contact-info">
+      <strong>Big Banana &lt;Code/&gt;</strong><br>
+      Software Solutions<br>
+      bigbananacode.com
+    </div>
+  </div>
+</div>
+</body>
+</html>
