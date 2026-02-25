@@ -3,408 +3,970 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mono Monkey POS - Cartel Facebook</title>
+<title>Mono Monkey POS — Big Banana &lt;Code/&gt;</title>
+<meta name="description" content="Sistema POS para farmacias. Ventas, inventario, reportes y más. Desarrollado por Big Banana Code.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap');
+/* ═══════════════════════════════════════
+   VARIABLES & RESET
+═══════════════════════════════════════ */
+:root {
+  --yellow:    #FFD200;
+  --orange:    #FF8C00;
+  --bg:        #0d0d1a;
+  --bg2:       #111127;
+  --bg3:       #0d1830;
+  --text:      #e8eaf6;
+  --text-muted:#8892b0;
+  --green:     #4ade80;
+  --card-bg:   rgba(255,255,255,0.04);
+  --card-bdr:  rgba(255,255,255,0.09);
+  --radius:    16px;
+  --shadow:    0 20px 60px rgba(0,0,0,0.5);
+}
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    background: #1a1a2e;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    font-family: 'Nunito', sans-serif;
-    padding: 20px;
-  }
+html { scroll-behavior: smooth; }
 
-  .poster {
-    width: 1080px;
-    height: 1080px;
-    background: linear-gradient(145deg, #0d0d1a 0%, #1a1a3e 40%, #0d2040 100%);
-    position: relative;
-    overflow: hidden;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    padding: 50px 60px;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.8);
-  }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
 
-  /* Background decorative circles */
-  .poster::before {
-    content: '';
-    position: absolute;
-    width: 700px; height: 700px;
-    border-radius: 50%;
-    border: 1px solid rgba(255,210,0,0.06);
-    top: -200px; right: -200px;
-  }
-  .poster::after {
-    content: '';
-    position: absolute;
-    width: 500px; height: 500px;
-    border-radius: 50%;
-    border: 1px solid rgba(0,180,255,0.07);
-    bottom: -150px; left: -150px;
-  }
+/* ═══════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--yellow); border-radius: 3px; }
 
-  /* Glow blobs */
-  .blob-yellow {
-    position: absolute;
-    width: 400px; height: 400px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,200,0,0.12) 0%, transparent 70%);
-    top: -80px; left: 50%;
-    transform: translateX(-50%);
-    pointer-events: none;
-  }
-  .blob-blue {
-    position: absolute;
-    width: 350px; height: 350px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(0,150,255,0.10) 0%, transparent 70%);
-    bottom: 80px; right: -100px;
-    pointer-events: none;
-  }
+/* ═══════════════════════════════════════
+   NAV
+═══════════════════════════════════════ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 0 40px;
+  height: 68px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(13,13,26,0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,210,0,0.1);
+  transition: background 0.3s;
+}
 
-  /* TOP: Brand */
-  .brand-row {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    z-index: 2;
-    animation: fadeDown 0.6s ease both;
-  }
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none;
+  font-weight: 900; font-size: 18px; color: var(--text);
+  letter-spacing: -0.02em;
+}
+.nav-logo .banana { font-size: 26px; }
+.nav-logo span { color: var(--yellow); }
 
-  .brand-pill {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 100px;
-    padding: 8px 22px 8px 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+.nav-links {
+  display: flex; align-items: center; gap: 32px;
+  list-style: none;
+}
+.nav-links a {
+  color: var(--text-muted); text-decoration: none;
+  font-weight: 700; font-size: 14px; letter-spacing: 0.05em;
+  text-transform: uppercase; transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--yellow); }
 
-  .brand-icon {
-    width: 36px; height: 36px;
-    background: linear-gradient(135deg, #FFD200, #FF8C00);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
-  }
+.nav-cta {
+  background: var(--yellow); color: #0d0d1a !important;
+  padding: 10px 24px; border-radius: 100px;
+  font-weight: 900 !important; transition: transform 0.2s, box-shadow 0.2s !important;
+  box-shadow: 0 4px 20px rgba(255,210,0,0.3);
+}
+.nav-cta:hover { transform: translateY(-2px) !important; box-shadow: 0 8px 30px rgba(255,210,0,0.5) !important; color: #0d0d1a !important; }
 
-  .brand-text {
-    font-size: 14px;
-    font-weight: 700;
-    color: rgba(255,255,255,0.6);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-  .brand-text span {
-    color: #FFD200;
-  }
+.nav-hamburger { display: none; background: none; border: none; cursor: pointer; color: var(--text); font-size: 26px; }
 
-  /* CENTER: Main content */
-  .center-block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
-    z-index: 2;
-    flex: 1;
-    justify-content: center;
-  }
+/* ═══════════════════════════════════════
+   HERO
+═══════════════════════════════════════ */
+#hero {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 100px 24px 60px;
+  position: relative;
+  overflow: hidden;
+}
 
-  .emoji-mascot {
-    font-size: 110px;
-    line-height: 1;
-    margin-bottom: 16px;
-    animation: bounce 2.5s ease-in-out infinite;
-    filter: drop-shadow(0 0 30px rgba(255,210,0,0.4));
-  }
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
 
-  @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-12px); }
-  }
+.hero-glow {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(80px);
+}
+.hero-glow.y { width: 700px; height: 700px; background: rgba(255,210,0,0.08); top: -200px; left: 50%; transform: translateX(-50%); }
+.hero-glow.b { width: 500px; height: 500px; background: rgba(0,120,255,0.07); bottom: -100px; right: -150px; }
+.hero-glow.p { width: 400px; height: 400px; background: rgba(120,0,200,0.06); bottom: -50px; left: -100px; }
 
-  .tagline-top {
-    font-size: 15px;
-    font-weight: 700;
-    color: #FFD200;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-    opacity: 0.9;
-  }
+.hero-ring {
+  position: absolute; border-radius: 50%; pointer-events: none;
+}
+.hero-ring.r1 { width: 700px; height: 700px; border: 1px solid rgba(255,210,0,0.06); top: -200px; right: -200px; }
+.hero-ring.r2 { width: 500px; height: 500px; border: 1px solid rgba(0,180,255,0.05); bottom: -150px; left: -150px; }
 
-  .product-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 108px;
-    line-height: 0.9;
-    text-align: center;
-    background: linear-gradient(180deg, #ffffff 0%, #c8d8f0 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: 0.02em;
-    margin-bottom: 6px;
-  }
+.hero-content { position: relative; z-index: 2; max-width: 860px; }
 
-  .product-sub {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 36px;
-    color: #FFD200;
-    letter-spacing: 0.18em;
-    margin-bottom: 32px;
-  }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,210,0,0.1); border: 1px solid rgba(255,210,0,0.3);
+  border-radius: 100px; padding: 8px 20px; margin-bottom: 32px;
+  font-size: 13px; font-weight: 800; color: var(--yellow);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  animation: fadeDown 0.6s ease both;
+}
 
-  .description {
-    font-size: 18px;
-    color: rgba(255,255,255,0.70);
-    text-align: center;
-    max-width: 680px;
-    line-height: 1.5;
-    font-weight: 600;
-    margin-bottom: 40px;
-  }
+.hero-monkey {
+  font-size: 100px; line-height: 1;
+  display: block; margin-bottom: 16px;
+  animation: bounce 2.8s ease-in-out infinite, fadeUp 0.8s ease 0.2s both;
+  filter: drop-shadow(0 0 40px rgba(255,210,0,0.35));
+}
 
-  /* Features grid */
-  .features {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 44px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
 
-  .feature-chip {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.14);
-    border-radius: 100px;
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    font-weight: 700;
-    color: rgba(255,255,255,0.85);
-    transition: all 0.3s;
-  }
+.hero-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(72px, 12vw, 130px);
+  line-height: 0.88;
+  background: linear-gradient(170deg, #fff 0%, #c8d8f0 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+  animation: fadeUp 0.8s ease 0.3s both;
+}
 
-  .feature-chip:hover {
-    border-color: rgba(255,210,0,0.4);
-    background: rgba(255,210,0,0.08);
-    color: #FFD200;
-  }
+.hero-subtitle {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(22px, 4vw, 36px);
+  color: var(--yellow); letter-spacing: 0.2em;
+  margin-bottom: 24px;
+  animation: fadeUp 0.8s ease 0.4s both;
+}
 
-  .feature-chip .ic {
-    font-size: 18px;
-  }
+.hero-desc {
+  font-size: clamp(15px, 2vw, 18px);
+  color: var(--text-muted); max-width: 580px;
+  margin: 0 auto 40px; font-weight: 600;
+  animation: fadeUp 0.8s ease 0.5s both;
+}
 
-  /* Price block */
-  .price-block {
-    background: linear-gradient(135deg, rgba(255,210,0,0.15) 0%, rgba(255,140,0,0.10) 100%);
-    border: 1.5px solid rgba(255,210,0,0.35);
-    border-radius: 24px;
-    padding: 28px 60px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
+.hero-btns {
+  display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+  animation: fadeUp 0.8s ease 0.6s both;
+}
 
-  .price-block::before {
-    content: '🚀 PRECIO DE LANZAMIENTO';
-    position: absolute;
-    top: -1px; left: 50%; transform: translateX(-50%);
-    background: linear-gradient(90deg, #FFD200, #FF8C00);
-    color: #000;
-    font-size: 11px;
-    font-weight: 900;
-    letter-spacing: 0.15em;
-    padding: 4px 20px;
-    border-radius: 0 0 12px 12px;
-  }
+.btn-primary {
+  background: linear-gradient(135deg, var(--yellow), var(--orange));
+  color: #0d0d1a; font-weight: 900; font-size: 16px;
+  padding: 16px 40px; border-radius: 100px; text-decoration: none;
+  box-shadow: 0 8px 30px rgba(255,180,0,0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(255,180,0,0.55); }
 
-  .price-label {
-    font-size: 14px;
-    color: rgba(255,255,255,0.5);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-top: 14px;
-    margin-bottom: 2px;
-  }
+.btn-secondary {
+  background: rgba(255,255,255,0.06); color: var(--text);
+  border: 1px solid rgba(255,255,255,0.15); font-weight: 700; font-size: 16px;
+  padding: 16px 40px; border-radius: 100px; text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,210,0,0.3); }
 
-  .price-value {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 96px;
-    line-height: 1;
-    background: linear-gradient(135deg, #FFD200 0%, #FF8C00 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+.hero-stats {
+  display: flex; gap: 48px; justify-content: center;
+  margin-top: 64px; flex-wrap: wrap;
+  animation: fadeUp 0.8s ease 0.8s both;
+}
+.stat { text-align: center; }
+.stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 44px; color: var(--yellow); line-height: 1; }
+.stat-label { font-size: 12px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
 
-  .price-period {
-    font-size: 16px;
-    color: rgba(255,255,255,0.55);
-    font-weight: 700;
-    margin-top: 2px;
-  }
+/* ═══════════════════════════════════════
+   SECTION COMMONS
+═══════════════════════════════════════ */
+section { padding: 100px 24px; }
 
-  /* Includes row */
-  .includes {
-    display: flex;
-    gap: 24px;
-    margin-top: 16px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
+.section-label {
+  display: inline-block;
+  font-size: 12px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--yellow); margin-bottom: 16px;
+}
+.section-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(42px, 6vw, 72px); line-height: 1;
+  margin-bottom: 16px;
+}
+.section-desc {
+  font-size: 17px; color: var(--text-muted); max-width: 560px;
+  margin: 0 auto; font-weight: 600;
+}
+.text-center { text-align: center; }
+.container { max-width: 1140px; margin: 0 auto; }
 
-  .include-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    color: rgba(255,255,255,0.7);
-    font-weight: 700;
-  }
+/* ═══════════════════════════════════════
+   FEATURES
+═══════════════════════════════════════ */
+#features { background: var(--bg2); }
 
-  .include-item .check {
-    color: #FFD200;
-    font-size: 15px;
-  }
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px; margin-top: 64px;
+}
 
-  /* BOTTOM: CTA */
-  .bottom-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    z-index: 2;
-    gap: 20px;
-  }
+.feature-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-bdr);
+  border-radius: var(--radius);
+  padding: 36px 32px;
+  transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+  position: relative; overflow: hidden;
+}
+.feature-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--yellow), transparent);
+  opacity: 0; transition: opacity 0.3s;
+}
+.feature-card:hover { transform: translateY(-6px); border-color: rgba(255,210,0,0.25); box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+.feature-card:hover::before { opacity: 1; }
 
-  .cta-btn {
-    background: linear-gradient(135deg, #FFD200 0%, #FF8C00 100%);
-    color: #0d0d1a;
-    font-size: 18px;
-    font-weight: 900;
-    padding: 18px 50px;
-    border-radius: 100px;
-    text-decoration: none;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    box-shadow: 0 8px 30px rgba(255,180,0,0.35);
-    display: inline-block;
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
+.feature-icon {
+  font-size: 44px; margin-bottom: 20px; display: block;
+  filter: drop-shadow(0 4px 12px rgba(255,210,0,0.3));
+}
+.feature-title { font-weight: 900; font-size: 20px; margin-bottom: 10px; color: #fff; }
+.feature-desc { font-size: 15px; color: var(--text-muted); font-weight: 600; line-height: 1.6; }
 
-  .cta-btn:hover {
-    transform: scale(1.03);
-    box-shadow: 0 12px 40px rgba(255,180,0,0.50);
-  }
+/* ═══════════════════════════════════════
+   SCREENSHOTS / DEMO
+═══════════════════════════════════════ */
+#demo { background: var(--bg); }
 
-  .contact-info {
-    text-align: right;
-    font-size: 14px;
-    color: rgba(255,255,255,0.45);
-    line-height: 1.8;
-    font-weight: 600;
-  }
+.demo-tabs {
+  display: flex; gap: 8px; justify-content: center;
+  flex-wrap: wrap; margin: 48px 0 40px;
+}
+.demo-tab {
+  background: rgba(255,255,255,0.05); border: 1px solid var(--card-bdr);
+  border-radius: 100px; padding: 10px 24px;
+  font-size: 13px; font-weight: 800; color: var(--text-muted);
+  cursor: pointer; transition: all 0.2s; text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.demo-tab.active, .demo-tab:hover {
+  background: rgba(255,210,0,0.12); border-color: rgba(255,210,0,0.4);
+  color: var(--yellow);
+}
 
-  .contact-info strong {
-    color: rgba(255,255,255,0.80);
-    font-size: 15px;
-  }
+.demo-screen {
+  max-width: 860px; margin: 0 auto;
+  background: var(--bg2); border: 1px solid var(--card-bdr);
+  border-radius: 20px; overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+}
 
-  /* Decorative horizontal line */
-  .divider {
-    width: 100%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,210,0,0.3), transparent);
-    margin: 0;
-  }
+.demo-topbar {
+  background: rgba(255,255,255,0.04);
+  padding: 14px 20px;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid var(--card-bdr);
+}
+.dot { width: 12px; height: 12px; border-radius: 50%; }
+.dot.r{background:#ff5f57;} .dot.y{background:#febc2e;} .dot.g{background:#28c840;}
+.demo-topbar-title { margin-left: 12px; font-size: 13px; color: var(--text-muted); font-weight: 700; }
 
-  @keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+.demo-body {
+  padding: 0;
+  min-height: 420px;
+  display: flex;
+  background: #0a0a18;
+}
 
-  /* Grid lines background */
-  .grid-bg {
-    position: absolute;
-    inset: 0;
-    background-image: 
-      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
-    background-size: 60px 60px;
-    pointer-events: none;
-  }
+/* POS mockup */
+.pos-sidebar {
+  width: 260px; background: #0f0f22; border-right: 1px solid rgba(255,255,255,0.06);
+  padding: 20px 16px; flex-shrink: 0;
+}
+.pos-search {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px; padding: 10px 14px; margin-bottom: 16px;
+  font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 8px;
+}
+.pos-label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+.pos-product {
+  background: rgba(255,255,255,0.04); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;
+}
+.pos-pname { font-size: 13px; font-weight: 700; color: var(--text); }
+.pos-pprice { font-size: 13px; font-weight: 900; color: var(--yellow); }
+.pos-pstock { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+.pos-main { flex: 1; padding: 20px; display: flex; flex-direction: column; }
+.pos-tickets { display: flex; gap: 6px; margin-bottom: 16px; }
+.pos-ticket {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px 8px 0 0; padding: 6px 16px;
+  font-size: 12px; font-weight: 800; color: var(--text-muted); cursor: pointer;
+}
+.pos-ticket.active { background: rgba(255,210,0,0.15); border-color: rgba(255,210,0,0.3); color: var(--yellow); }
+.pos-cart { flex: 1; }
+.pos-cart-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.pos-item-name { font-size: 13px; font-weight: 700; }
+.pos-item-qty { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.pos-item-total { font-size: 14px; font-weight: 900; color: var(--yellow); }
+.pos-total-row { margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; }
+.pos-total-label { font-size: 14px; font-weight: 800; }
+.pos-total-value { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--yellow); }
+
+.pos-actions { width: 180px; background: #0f0f22; border-left: 1px solid rgba(255,255,255,0.06); padding: 20px 14px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }
+.pos-btn {
+  width: 100%; padding: 12px 8px; border-radius: 10px;
+  font-size: 13px; font-weight: 900; text-align: center;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.pos-btn.cobrar { background: linear-gradient(135deg,#4ade80,#16a34a); color: #0d0d1a; }
+.pos-btn.cancel { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+.pos-btn.nuevo { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.2); }
+
+/* ═══════════════════════════════════════
+   PRICING
+═══════════════════════════════════════ */
+#pricing { background: var(--bg2); }
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px; margin-top: 64px; max-width: 900px; margin-left: auto; margin-right: auto;
+}
+
+.pricing-card {
+  background: var(--card-bg); border: 1px solid var(--card-bdr);
+  border-radius: 24px; padding: 40px 36px;
+  position: relative; transition: transform 0.3s, box-shadow 0.3s;
+}
+.pricing-card:hover { transform: translateY(-8px); }
+
+.pricing-card.featured {
+  background: linear-gradient(145deg, rgba(255,210,0,0.1), rgba(255,140,0,0.06));
+  border-color: rgba(255,210,0,0.4);
+  box-shadow: 0 0 60px rgba(255,210,0,0.12);
+}
+
+.pricing-badge {
+  position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(90deg, var(--yellow), var(--orange));
+  color: #0d0d1a; font-size: 11px; font-weight: 900;
+  padding: 6px 20px; border-radius: 100px; letter-spacing: 0.1em; text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.pricing-name { font-size: 14px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
+.pricing-price {
+  font-family: 'Bebas Neue', sans-serif; font-size: 80px; line-height: 1;
+  color: var(--yellow); margin-bottom: 4px;
+}
+.pricing-period { font-size: 14px; color: var(--text-muted); font-weight: 700; margin-bottom: 32px; }
+
+.pricing-features { list-style: none; margin-bottom: 36px; }
+.pricing-features li {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 15px; font-weight: 700; padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  color: var(--text);
+}
+.pricing-features li:last-child { border-bottom: none; }
+.pricing-features .ck { color: var(--green); font-size: 16px; flex-shrink: 0; }
+.pricing-features .xx { color: #f87171; font-size: 16px; flex-shrink: 0; }
+
+/* ═══════════════════════════════════════
+   ABOUT
+═══════════════════════════════════════ */
+#about { background: var(--bg); }
+
+.about-inner {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: center; max-width: 1000px; margin: 0 auto;
+}
+
+.about-visual {
+  position: relative; display: flex; align-items: center; justify-content: center;
+}
+.about-circle {
+  width: 320px; height: 320px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,210,0,0.1) 0%, transparent 70%);
+  border: 1px solid rgba(255,210,0,0.15);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.about-circle::before {
+  content:''; position: absolute; inset: -20px; border-radius: 50%;
+  border: 1px solid rgba(255,210,0,0.06);
+}
+.about-emoji { font-size: 120px; filter: drop-shadow(0 0 40px rgba(255,210,0,0.4)); }
+.about-floating {
+  position: absolute; background: var(--bg2); border: 1px solid var(--card-bdr);
+  border-radius: 12px; padding: 10px 16px;
+  font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 8px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+.about-floating.f1 { bottom: 20px; left: -20px; color: var(--green); }
+.about-floating.f2 { top: 30px; right: -20px; color: var(--yellow); }
+
+.about-text .section-title { text-align: left; }
+.about-text .section-desc { text-align: left; margin: 0; }
+.about-text p { color: var(--text-muted); font-weight: 600; margin-bottom: 20px; font-size: 16px; line-height: 1.7; }
+
+.about-pills { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+.about-pill {
+  background: rgba(255,210,0,0.08); border: 1px solid rgba(255,210,0,0.2);
+  border-radius: 100px; padding: 8px 18px;
+  font-size: 13px; font-weight: 800; color: var(--yellow);
+}
+
+/* ═══════════════════════════════════════
+   CONTACT / WHATSAPP
+═══════════════════════════════════════ */
+#contact {
+  background: linear-gradient(145deg, #0d0d1a 0%, #0d1830 100%);
+  position: relative; overflow: hidden;
+}
+#contact::before {
+  content:''; position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+.contact-inner { position: relative; z-index: 2; max-width: 700px; margin: 0 auto; text-align: center; }
+.contact-inner .section-title { font-size: clamp(48px, 7vw, 80px); }
+
+.contact-options {
+  display: flex; gap: 16px; justify-content: center;
+  flex-wrap: wrap; margin-top: 48px;
+}
+
+.contact-btn {
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 18px 36px; border-radius: 100px; text-decoration: none;
+  font-weight: 900; font-size: 16px; transition: transform 0.2s, box-shadow 0.2s;
+}
+.contact-btn.whatsapp {
+  background: #25D366; color: #fff;
+  box-shadow: 0 8px 30px rgba(37,211,102,0.35);
+}
+.contact-btn.whatsapp:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(37,211,102,0.5); }
+.contact-btn.email {
+  background: rgba(255,255,255,0.08); color: var(--text);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.contact-btn.email:hover { background: rgba(255,255,255,0.14); }
+
+.contact-info-grid {
+  display: flex; gap: 40px; justify-content: center;
+  flex-wrap: wrap; margin-top: 60px;
+}
+.contact-info-item { text-align: center; }
+.contact-info-icon { font-size: 28px; margin-bottom: 8px; display: block; }
+.contact-info-label { font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+.contact-info-value { font-size: 16px; font-weight: 700; color: var(--text); margin-top: 4px; }
+
+/* ═══════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════ */
+footer {
+  background: #080810;
+  border-top: 1px solid rgba(255,210,0,0.1);
+  padding: 48px 24px;
+}
+.footer-inner {
+  max-width: 1140px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 24px;
+}
+.footer-logo {
+  font-weight: 900; font-size: 20px; color: var(--text);
+  display: flex; align-items: center; gap: 10px;
+}
+.footer-logo span { color: var(--yellow); }
+.footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+.footer-links a { color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 700; transition: color 0.2s; }
+.footer-links a:hover { color: var(--yellow); }
+.footer-copy { font-size: 13px; color: var(--text-muted); font-weight: 600; }
+
+/* ═══════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════ */
+@keyframes fadeDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeUp   { from{opacity:0;transform:translateY(30px)}  to{opacity:1;transform:translateY(0)} }
+
+.reveal {
+  opacity: 0; transform: translateY(40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ═══════════════════════════════════════
+   WHATSAPP FLOAT
+═══════════════════════════════════════ */
+.wa-float {
+  position: fixed; bottom: 28px; right: 28px; z-index: 999;
+  width: 60px; height: 60px; border-radius: 50%;
+  background: #25D366;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px; text-decoration: none;
+  box-shadow: 0 8px 30px rgba(37,211,102,0.5);
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: waPulse 2s ease-in-out infinite;
+}
+.wa-float:hover { transform: scale(1.1); box-shadow: 0 12px 40px rgba(37,211,102,0.7); }
+@keyframes waPulse {
+  0%,100%{box-shadow:0 8px 30px rgba(37,211,102,0.5)}
+  50%{box-shadow:0 8px 50px rgba(37,211,102,0.8)}
+}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 768px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; flex-direction: column; position: absolute; top: 68px; left: 0; right: 0; background: rgba(13,13,26,0.97); padding: 20px; gap: 16px; border-bottom: 1px solid var(--card-bdr); }
+  .nav-links.open { display: flex; }
+  .nav-hamburger { display: block; }
+  .about-inner { grid-template-columns: 1fr; gap: 48px; }
+  .about-visual { order: -1; }
+  .about-circle { width: 220px; height: 220px; }
+  .about-emoji { font-size: 80px; }
+  .about-text .section-title, .about-text .section-desc { text-align: center; }
+  .about-pills { justify-content: center; }
+  .footer-inner { flex-direction: column; text-align: center; }
+  .pos-actions, .pos-sidebar { display: none; }
+  .pos-main { padding: 16px; }
+  section { padding: 72px 20px; }
+}
 </style>
 </head>
 <body>
-<div class="poster">
-  <div class="grid-bg"></div>
-  <div class="blob-yellow"></div>
-  <div class="blob-blue"></div>
 
-  <!-- TOP -->
-  <div class="brand-row">
-    <div class="brand-pill">
-      <div class="brand-icon">🍌</div>
-      <div class="brand-text">Big Banana <span>&lt;Code/&gt;</span> · Software Solutions</div>
+<!-- WhatsApp flotante -->
+<a href="https://wa.me/521234567890" class="wa-float" target="_blank" title="Escríbenos por WhatsApp">💬</a>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+  <a href="#hero" class="nav-logo">
+    <span class="banana">🍌</span>
+    Big Banana <span>&lt;Code/&gt;</span>
+  </a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#features">Características</a></li>
+    <li><a href="#demo">Demo</a></li>
+    <li><a href="#pricing">Precios</a></li>
+    <li><a href="#about">Nosotros</a></li>
+    <li><a href="#contact" class="nav-cta">Contacto</a></li>
+  </ul>
+  <button class="nav-hamburger" id="hamburger" aria-label="Menú">☰</button>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow y"></div>
+  <div class="hero-glow b"></div>
+  <div class="hero-glow p"></div>
+  <div class="hero-ring r1"></div>
+  <div class="hero-ring r2"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge">🚀 Versión 2.0 ya disponible</div>
+    <span class="hero-monkey">🐒</span>
+    <div class="hero-title">MONO MONKEY</div>
+    <div class="hero-subtitle">Sistema POS para Farmacia</div>
+    <p class="hero-desc">
+      El software más ágil y completo para gestionar tu farmacia. Ventas, inventario, reportes y más — todo en un solo lugar.
+    </p>
+    <div class="hero-btns">
+      <a href="#contact" class="btn-primary">🚀 Obtener ahora — $499/año</a>
+      <a href="#demo" class="btn-secondary">👀 Ver demo</a>
     </div>
-  </div>
 
-  <!-- CENTER -->
-  <div class="center-block">
-    <div class="emoji-mascot">🐒</div>
-    <div class="tagline-top">Sistema POS para Farmacia</div>
-    <div class="product-name">MONO MONKEY</div>
-    <div class="product-sub">Punto de Venta · v2.0</div>
-    <div class="description">
-      El software más ágil y completo para gestionar tu farmacia.<br>
-      Ventas, inventario, reportes y más, todo en un solo lugar.
-    </div>
-
-    <div class="features">
-      <div class="feature-chip"><span class="ic">💊</span> Inventario con lotes</div>
-      <div class="feature-chip"><span class="ic">🎫</span> Tickets imprimibles</div>
-      <div class="feature-chip"><span class="ic">📊</span> Reportes de ventas</div>
-      <div class="feature-chip"><span class="ic">👥</span> Múltiples usuarios</div>
-      <div class="feature-chip"><span class="ic">💳</span> Varios métodos de pago</div>
-      <div class="feature-chip"><span class="ic">📦</span> Control de stock</div>
-    </div>
-
-    <div class="price-block">
-      <div class="price-label">Solo por</div>
-      <div class="price-value">$499</div>
-      <div class="price-period">por año · licencia completa</div>
-      <div class="includes">
-        <div class="include-item"><span class="check">✓</span> Instalación incluida</div>
-        <div class="include-item"><span class="check">✓</span> Manual de usuario</div>
-        <div class="include-item"><span class="check">✓</span> Soporte técnico</div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">+50</div>
+        <div class="stat-label">Farmacias activas</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">v2.0</div>
+        <div class="stat-label">Versión actual</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">24/7</div>
+        <div class="stat-label">Soporte técnico</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">99%</div>
+        <div class="stat-label">Satisfacción</div>
       </div>
     </div>
   </div>
+</section>
 
-  <div class="divider"></div>
+<!-- ═══ FEATURES ═══ -->
+<section id="features">
+  <div class="container">
+    <div class="text-center reveal">
+      <span class="section-label">¿Por qué Mono Monkey?</span>
+      <h2 class="section-title">Todo lo que tu farmacia necesita</h2>
+      <p class="section-desc">Diseñado específicamente para el control diario de farmacias, fácil de usar desde el primer día.</p>
+    </div>
 
-  <!-- BOTTOM -->
-  <div class="bottom-row">
-    <a class="cta-btn" href="#">¡Contáctanos ahora!</a>
-    <div class="contact-info">
-      <strong>Big Banana &lt;Code/&gt;</strong><br>
-      Software Solutions<br>
-      Tel: 56 6264 6379
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <span class="feature-icon">💰</span>
+        <div class="feature-title">Punto de Venta rápido</div>
+        <p class="feature-desc">Cobra en segundos con soporte para múltiples tickets simultáneos, lector de código de barras y varios métodos de pago.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">💊</span>
+        <div class="feature-title">Inventario con lotes</div>
+        <p class="feature-desc">Controla fechas de vencimiento, lotes y stock mínimo. Recibe alertas cuando un producto está por agotarse.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">📊</span>
+        <div class="feature-title">Reportes de ventas</div>
+        <p class="feature-desc">Historial por día, turno y período. Exporta a Excel con un clic. Gráficas claras para tomar mejores decisiones.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">🎫</span>
+        <div class="feature-title">Tickets imprimibles</div>
+        <p class="feature-desc">Tickets personalizables con el nombre y logo de tu farmacia. Reimprime cualquier ticket del historial cuando lo necesites.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">👥</span>
+        <div class="feature-title">Múltiples usuarios</div>
+        <p class="feature-desc">Roles de Maestro y Cajero con permisos diferenciados. Cada cajero tiene su propio turno y corte de caja.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">🏦</span>
+        <div class="feature-title">Corte de caja</div>
+        <p class="feature-desc">Cierra cada turno con un corte detallado: efectivo, tarjeta, entradas y salidas. Todo cuadrado al centavo.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">🎨</span>
+        <div class="feature-title">Temas personalizables</div>
+        <p class="feature-desc">Elige entre varios temas de colores o crea uno con los colores de tu marca. El sistema se adapta a ti.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">💾</span>
+        <div class="feature-title">Respaldo automático</div>
+        <p class="feature-desc">Protege tu información con respaldos de base de datos con un solo clic. Nunca pierdas tus datos.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">📦</span>
+        <div class="feature-title">Importar desde Excel</div>
+        <p class="feature-desc">Carga tu catálogo completo de productos desde Excel en minutos. Sin necesidad de capturar uno por uno.</p>
+      </div>
     </div>
   </div>
-</div>
+</section>
+
+<!-- ═══ DEMO ═══ -->
+<section id="demo">
+  <div class="container">
+    <div class="text-center reveal">
+      <span class="section-label">Así se ve por dentro</span>
+      <h2 class="section-title">Interfaz clara y profesional</h2>
+      <p class="section-desc">Diseñada para que cualquier empleado pueda aprender a usarla en minutos, sin capacitación extensa.</p>
+    </div>
+
+    <div class="demo-tabs">
+      <button class="demo-tab active">💰 Punto de Venta</button>
+      <button class="demo-tab">📦 Inventario</button>
+      <button class="demo-tab">📊 Reportes</button>
+    </div>
+
+    <div class="demo-screen reveal">
+      <div class="demo-topbar">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <span class="demo-topbar-title">Mono Monkey POS — Farmacia San José &nbsp;|&nbsp; 👤 María González (CAJERO)</span>
+      </div>
+      <div class="demo-body">
+        <!-- Sidebar búsqueda -->
+        <div class="pos-sidebar">
+          <div class="pos-search">🔍 Buscar producto…</div>
+          <div class="pos-label">Resultados</div>
+          <div class="pos-product">
+            <div>
+              <div class="pos-pname">Paracetamol 500mg</div>
+              <div class="pos-pstock">Stock: 48 pzas</div>
+            </div>
+            <div class="pos-pprice">$12.50</div>
+          </div>
+          <div class="pos-product" style="border:1px solid rgba(255,210,0,0.3);background:rgba(255,210,0,0.06)">
+            <div>
+              <div class="pos-pname">Amoxicilina 500mg</div>
+              <div class="pos-pstock">Stock: 24 pzas</div>
+            </div>
+            <div class="pos-pprice">$38.00</div>
+          </div>
+          <div class="pos-product">
+            <div>
+              <div class="pos-pname">Omeprazol 20mg</div>
+              <div class="pos-pstock">Stock: 60 pzas</div>
+            </div>
+            <div class="pos-pprice">$22.00</div>
+          </div>
+          <div class="pos-product">
+            <div>
+              <div class="pos-pname">Ibuprofeno 400mg</div>
+              <div class="pos-pstock">Stock: 32 pzas</div>
+            </div>
+            <div class="pos-pprice">$18.50</div>
+          </div>
+        </div>
+        <!-- Carrito -->
+        <div class="pos-main">
+          <div class="pos-tickets">
+            <div class="pos-ticket active">🧾 Ticket #1</div>
+            <div class="pos-ticket">🧾 Ticket #2</div>
+            <div class="pos-ticket">＋</div>
+          </div>
+          <div class="pos-cart">
+            <div class="pos-cart-item">
+              <div>
+                <div class="pos-item-name">Paracetamol 500mg</div>
+                <div class="pos-item-qty">2 pzas × $12.50</div>
+              </div>
+              <div class="pos-item-total">$25.00</div>
+            </div>
+            <div class="pos-cart-item">
+              <div>
+                <div class="pos-item-name">Amoxicilina 500mg</div>
+                <div class="pos-item-qty">1 pza × $38.00</div>
+              </div>
+              <div class="pos-item-total">$38.00</div>
+            </div>
+            <div class="pos-cart-item">
+              <div>
+                <div class="pos-item-name">Omeprazol 20mg</div>
+                <div class="pos-item-qty">1 pza × $22.00</div>
+              </div>
+              <div class="pos-item-total">$22.00</div>
+            </div>
+          </div>
+          <div class="pos-total-row">
+            <div class="pos-total-label">TOTAL A PAGAR</div>
+            <div class="pos-total-value">$85.00</div>
+          </div>
+        </div>
+        <!-- Acciones -->
+        <div class="pos-actions">
+          <div class="pos-btn cobrar">💵 COBRAR<br><small style="font-size:10px;font-weight:700">(F9)</small></div>
+          <div class="pos-btn nuevo">➕ NUEVO<br><small style="font-size:10px">Ctrl+N</small></div>
+          <div class="pos-btn cancel">🗑️ CANCELAR</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PRICING ═══ -->
+<section id="pricing">
+  <div class="container">
+    <div class="text-center reveal">
+      <span class="section-label">Precio de lanzamiento</span>
+      <h2 class="section-title">Simple y sin sorpresas</h2>
+      <p class="section-desc">Un solo pago anual. Sin mensualidades ocultas, sin módulos extra. Todo incluido desde el día uno.</p>
+    </div>
+
+    <div class="pricing-grid">
+      <!-- Plan Anual -->
+      <div class="pricing-card featured reveal">
+        <div class="pricing-badge">🚀 Más popular</div>
+        <div class="pricing-name">Licencia Anual</div>
+        <div class="pricing-price">$499</div>
+        <div class="pricing-period">por año · pago único</div>
+        <ul class="pricing-features">
+          <li><span class="ck">✓</span> Instalación incluida</li>
+          <li><span class="ck">✓</span> Manual de usuario</li>
+          <li><span class="ck">✓</span> Soporte técnico incluido</li>
+          <li><span class="ck">✓</span> Actualizaciones del año</li>
+          <li><span class="ck">✓</span> Usuarios ilimitados</li>
+          <li><span class="ck">✓</span> Inventario con lotes</li>
+          <li><span class="ck">✓</span> Reportes y exportación Excel</li>
+          <li><span class="ck">✓</span> Respaldo de base de datos</li>
+        </ul>
+        <a href="#contact" class="btn-primary" style="width:100%;justify-content:center">¡Lo quiero ahora!</a>
+      </div>
+
+      <!-- Plan Demo -->
+      <div class="pricing-card reveal">
+        <div class="pricing-name">Demo gratuita</div>
+        <div class="pricing-price" style="font-size:60px;color:var(--text)">GRATIS</div>
+        <div class="pricing-period">prueba sin compromiso</div>
+        <ul class="pricing-features">
+          <li><span class="ck">✓</span> 30 días de prueba</li>
+          <li><span class="ck">✓</span> Todas las funciones activas</li>
+          <li><span class="ck">✓</span> Sin tarjeta de crédito</li>
+          <li><span class="ck">✓</span> Instalación asistida</li>
+          <li><span class="xx">✗</span> Soporte prioritario</li>
+          <li><span class="xx">✗</span> Actualizaciones</li>
+          <li><span class="xx">✗</span> Licencia comercial</li>
+        </ul>
+        <a href="#contact" class="btn-secondary" style="width:100%;justify-content:center">Solicitar demo</a>
+      </div>
+    </div>
+
+    <p style="text-align:center;margin-top:32px;font-size:14px;color:var(--text-muted);font-weight:700">
+      ¿Necesitas una cotización especial para varias sucursales? <a href="#contact" style="color:var(--yellow)">Contáctanos</a>
+    </p>
+  </div>
+</section>
+
+<!-- ═══ ABOUT ═══ -->
+<section id="about">
+  <div class="container">
+    <div class="about-inner">
+      <div class="about-visual reveal">
+        <div class="about-circle">
+          <span class="about-emoji">🍌</span>
+          <div class="about-floating f1">✅ +50 farmacias confían en nosotros</div>
+          <div class="about-floating f2">⚡ Soporte en menos de 24h</div>
+        </div>
+      </div>
+      <div class="about-text reveal">
+        <span class="section-label">Quiénes somos</span>
+        <h2 class="section-title">Big Banana<br><span style="color:var(--yellow)">&lt;Code/&gt;</span></h2>
+        <p>Somos un equipo apasionado de desarrolladores especializados en software para el sector salud en México. Creamos soluciones prácticas, accesibles y confiables para pequeños y medianos negocios.</p>
+        <p>Mono Monkey POS nació de escuchar a farmacéuticos reales: lo que necesitaban, lo que les frustraba y lo que querían mejorar cada día en su negocio.</p>
+        <div class="about-pills">
+          <span class="about-pill">🇲🇽 Hecho en México</span>
+          <span class="about-pill">💻 Software propio</span>
+          <span class="about-pill">🤝 Soporte humano</span>
+          <span class="about-pill">🔒 Datos seguros</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONTACT ═══ -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="reveal">
+      <span class="section-label">¿Listo para empezar?</span>
+      <h2 class="section-title">Hablemos hoy 🐒</h2>
+      <p class="section-desc" style="margin:16px auto 0">Escríbenos por WhatsApp o correo y te respondemos en menos de 24 horas. La instalación es rápida y la demo es gratis.</p>
+    </div>
+
+    <div class="contact-options reveal">
+      <a href="https://wa.me/521234567890?text=Hola,%20quiero%20información%20sobre%20Mono%20Monkey%20POS" class="contact-btn whatsapp" target="_blank">
+        💬 WhatsApp
+      </a>
+      <a href="mailto:contacto@bigbananacode.com" class="contact-btn email">
+        ✉️ Enviar correo
+      </a>
+    </div>
+
+    <div class="contact-info-grid reveal">
+      <div class="contact-info-item">
+        <span class="contact-info-icon">📍</span>
+        <div class="contact-info-label">Ubicación</div>
+        <div class="contact-info-value">México</div>
+      </div>
+      <div class="contact-info-item">
+        <span class="contact-info-icon">📱</span>
+        <div class="contact-info-label">WhatsApp</div>
+        <div class="contact-info-value">+52 123 456 7890</div>
+      </div>
+      <div class="contact-info-item">
+        <span class="contact-info-icon">✉️</span>
+        <div class="contact-info-label">Correo</div>
+        <div class="contact-info-value">contacto@bigbananacode.com</div>
+      </div>
+      <div class="contact-info-item">
+        <span class="contact-info-icon">⏰</span>
+        <div class="contact-info-label">Horario</div>
+        <div class="contact-info-value">Lun–Vie 9am–6pm</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">🍌 Big Banana <span>&lt;Code/&gt;</span></div>
+    <div class="footer-links">
+      <a href="#features">Características</a>
+      <a href="#demo">Demo</a>
+      <a href="#pricing">Precios</a>
+      <a href="#about">Nosotros</a>
+      <a href="#contact">Contacto</a>
+    </div>
+    <div class="footer-copy">© 2026 Big Banana &lt;Code/&gt; · Todos los derechos reservados</div>
+  </div>
+</footer>
+
+<script>
+// ── Hamburger menu ──
+const hamburger = document.getElementById('hamburger');
+const navLinks  = document.getElementById('navLinks');
+hamburger.addEventListener('click', () => {
+  navLinks.classList.toggle('open');
+  hamburger.textContent = navLinks.classList.contains('open') ? '✕' : '☰';
+});
+navLinks.querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', () => { navLinks.classList.remove('open'); hamburger.textContent = '☰'; });
+});
+
+// ── Scroll reveal ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 80);
+    }
+  });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── Nav background on scroll ──
+window.addEventListener('scroll', () => {
+  document.querySelector('nav').style.background =
+    window.scrollY > 40 ? 'rgba(13,13,26,0.97)' : 'rgba(13,13,26,0.85)';
+});
+
+// ── Demo tabs (visual only) ──
+document.querySelectorAll('.demo-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+  });
+});
+</script>
 </body>
 </html>
